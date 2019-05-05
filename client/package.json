@@ -1,0 +1,67 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@types/react": "^16.8.13",
+    "cors": "^2.8.5",
+    "drizzle": "^1.4.0",
+    "drizzle-react": "^1.2.0",
+    "drizzle-react-components": "^1.4.0",
+    "eslint": "5.12.0",
+    "express": "^4.16.4",
+    "mysql": "^2.17.0",
+    "node-gyp": "^3.8.0",
+    "node-sass": "^4.11.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "^2.1.8",
+    "webpack": "4.28.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "ganache": "ganache-cli -b 3",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate --reset",
+    "backend": "node server server.js",
+    "error": "echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p",
+    "t-test": "truffle test --show-events"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "ipfs-http-client": "^30.1.4",
+    "js-sha256": "^0.9.0",
+    "react-redux": "^6.0.0",
+    "redux": "^4.0.1",
+    "typescript": "^3.4.3",
+    "web3": "^1.0.0-beta.52"
+  },
+  "description": "Trabajo Fin de Grado.",
+  "main": "index.js",
+  "keywords": [
+    "TFG",
+    "react",
+    "Ethereum",
+    "blockchain"
+  ],
+  "author": "Hans Huaita Loyola",
+  "homepage": "./"
+}
