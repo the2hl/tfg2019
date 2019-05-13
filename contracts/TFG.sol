@@ -3,7 +3,8 @@ pragma solidity ^0.5.0;
 contract TFG {
 
   struct Contrato{
-    uint id; // Identificador del contrato
+    //uint id; // Identificador del contrato
+    address direccion;
     string nombre; // Nombre del propietario del contrato
     string apellido1; // Primer apellido del propietario del contrato
     string apellido2; // Segundo apellido del propietario del contrato
@@ -12,18 +13,20 @@ contract TFG {
     string ipfsHash; // Hash IPFS del contrato
   }
 
-  uint public identificador = 1;
+  //uint public identificador = 1;
 
   uint public nContratos;
 
-  uint[] public contratosKeys;
+  address[] public contratosDirs;
 
-  mapping (uint => Contrato) public contratos;
+  mapping (address => Contrato) public contratos;
+
+  address public creador;
 
   /***** EVENTOS *****/
 
   event ContratoCreado(
-    uint id,
+    address direccion,
     string nombre,
     string apellido1,
     string apellido2,
@@ -31,24 +34,49 @@ contract TFG {
     string passwordHash
   );
 
-  event NombreCambiado(uint id, string nombre);
+  event DireccionCreador(address creador);
 
-  event Apellido1Cambiado(uint id, string apellido1);
+  event NombreCambiado(address direccion, string nombre);
 
-  event Apellido2Cambiado(uint id, string apellido2);
+  event Apellido1Cambiado(address direccion, string apellido1);
 
-  event DNICambiado(uint id, string dni);
+  event Apellido2Cambiado(address direccion, string apellido2);
 
-  event IPFSHashCambiado(uint id, string ipfsHash);
+  event DNICambiado(address direccion, string dni);
+
+  event IPFSHashCambiado(address direccion, string ipfsHash);
+
+  event ContratoYaExistente(uint posicion);
 
   /***** FUNCIONES *****/
 
+  constructor() public{
+    creador = msg.sender;
+    emit DireccionCreador(creador);
+  }
+
   function nuevoContrato(string memory _nombre, string memory _apell1, string memory _apell2, string memory _dni, string memory _pwHash) public {
-    emit ContratoCreado(identificador,_nombre, _apell1, _apell2, _dni, _pwHash);
-    contratos[identificador] = Contrato(identificador, _nombre, _apell1, _apell2, _dni, _pwHash, "");
-    contratosKeys.push(identificador);
-    identificador++;
+    for(uint i = 0; i<nContratos;i++){
+      address aux = contratosDirs[i];
+      if(aux == msg.sender){
+        emit ContratoYaExistente(i);
+        return;
+      }
+    }
+    emit ContratoCreado(msg.sender,_nombre, _apell1, _apell2, _dni, _pwHash);
+    contratos[msg.sender] = Contrato(msg.sender, _nombre, _apell1, _apell2, _dni, _pwHash, "");
+    contratosDirs.push(msg.sender);
+    //identificador++;
     nContratos++;
+  }
+  // Es view porque toma datos del estado del contrato. Al ser view, no se pueden emitir eventos
+  function isRegistrado() public view returns (bool){
+    for(uint i = 0; i<nContratos;i++){
+      if(msg.sender == contratosDirs[i]){
+        return true;
+      }
+    }
+    return false;
   }
 
   /*
@@ -58,60 +86,48 @@ contract TFG {
   Si el DNI es correcto pero el hash es incorrecto, se devuelve -1
   Si el DNI y el hash son correctos, se devuelve la posición del contrato
   */
-  function  buscarContrato(string memory _dni, string memory _pwHash) public view returns (int){
-    bool dniCorrecto = false;
-    uint posDni = 0;
-    uint posPW = 0;
-    bool pwCorrecto = false;
-    for(uint i = 1; i<=nContratos;i++){
-      if(compararStrings(contratos[i].dni, _dni)){
-        dniCorrecto = true;
-        posDni = i;
-        break;
+  function buscarContrato(string memory _dni) public view returns (address){
+    for(uint i = 0; i<nContratos; i++){
+      address aux = contratosDirs[i];
+      if ( compararStrings(contratos[aux].dni, _dni)){
+        return aux;
       }
     }
-    for(uint i = 1; i<=nContratos;i++){
-      if(compararStrings(contratos[i].passwordHash, _pwHash)){
-        pwCorrecto = true;
-        posPW = i;
-        break;
+    return address(0);
+  }
+
+  // Es view porque toma datos del estado del contrato. Al ser view, no se pueden emitir eventos
+  function autenticar(string memory _pwHash) public view returns (bool){
+    for(uint i = 0; i<nContratos; i++){
+      if (msg.sender == contratosDirs[i]){
+        return compararStrings(contratos[msg.sender].passwordHash, _pwHash);
       }
     }
-    if(dniCorrecto&&!pwCorrecto){
-      return -1;
-    }
-    if(pwCorrecto&&!dniCorrecto){
-      return -2;
-    }
-    if(posDni == posPW && posDni > 0){
-      return int(posDni);
-    }
-    return -3;
   }
 
-  function cambiarNombre(uint _id, string memory _nuevo) public{
-    emit NombreCambiado(_id, _nuevo);
-    contratos[_id].nombre = _nuevo;
+  function cambiarNombre(string memory _nuevo) public{
+    emit NombreCambiado(msg.sender, _nuevo);
+    contratos[msg.sender].nombre = _nuevo;
   }
 
-  function cambiarApellido1(uint _id, string memory _nuevo) public{
-    emit Apellido1Cambiado(_id, _nuevo);
-    contratos[_id].apellido1 = _nuevo;
+  function cambiarApellido1(string memory _nuevo) public{
+    emit Apellido1Cambiado(msg.sender, _nuevo);
+    contratos[msg.sender].apellido1 = _nuevo;
   }
 
-  function cambiarApellido2(uint _id, string memory _nuevo) public{
-    emit Apellido2Cambiado(_id, _nuevo);
-    contratos[_id].apellido2 = _nuevo;
+  function cambiarApellido2(string memory _nuevo) public{
+    emit Apellido2Cambiado(msg.sender, _nuevo);
+    contratos[msg.sender].apellido2 = _nuevo;
   }
 
-  function cambiarDNI(uint _id, string memory _nuevo) public{
-    emit DNICambiado(_id, _nuevo);
-    contratos[_id].dni = _nuevo;
+  function cambiarDNI(string memory _nuevo) public{
+    emit DNICambiado(msg.sender, _nuevo);
+    contratos[msg.sender].dni = _nuevo;
   }
 
-  function cambiarIPFSHash(uint _id, string memory _nuevo) public{
-    emit IPFSHashCambiado(_id, _nuevo);
-    contratos[_id].ipfsHash = _nuevo;
+  function cambiarIPFSHash(string memory _nuevo) public{
+    emit IPFSHashCambiado(msg.sender, _nuevo);
+    contratos[msg.sender].ipfsHash = _nuevo;
   }
 
   // Es puro porque no toma datos del estado del contrato

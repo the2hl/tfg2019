@@ -27,7 +27,8 @@ class Register extends React.Component {
         this.getTxStatus = this.getTxStatus.bind(this);
     }
 
-    submitRegister() {
+    submitRegister(e) {
+        e.preventDefault(); // Evitar que se recargue la página al hacer submit. Necesario en React.
         let errorNomAux = false, errorApell1Aux = false, errorDNIAux = false, errorPWAux = false;
         if (this.state.nombre === "") {
             errorNomAux = true;
@@ -63,6 +64,7 @@ class Register extends React.Component {
                     gas: 280000
                 }
             );
+            console.log("Cuenta de Metamask: " + drizzleState.accounts[0]);
             console.log("Nuevo contrato añadido: " + nombre + " " + apellido1 + " " + apellido2 + " con DNI " + dni);
             // Se guarda el "stackId" para usarlo después
             this.setState({ stackId: stackIdAux });
@@ -150,46 +152,48 @@ class Register extends React.Component {
                     Registrarse
                 </div>
                 <div className="box">
-                    <div className="input-group">
-                        <label htmlFor="nombre">Nombre</label>
-                        <input type="text" name="nombre" className="login-input" placeholder="Nombre"
-                            onChange={this.onNombreChange} />
-                        <small className="danger-error">{nombreErr ? nombreErr : ""}</small>
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="apellido1">Primer apellido</label>
-                        <input type="text" name="apellido1" className="login-input"
-                            placeholder="Primer apellido" onChange={this.onApellido1Change} />
-                        <small className="danger-error">{apellido1Err ? apellido1Err : ""}</small>
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="apellido2">Segundo apellido (opcional)</label>
-                        <input type="text" name="apellido2" className="login-input"
-                            placeholder="Segundo apellido" onChange={this.onApellido2Change} />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="dni">DNI</label>
-                        <input type="text" name="dni" className="login-input" placeholder="DNI"
-                            onChange={this.onDNIChange} />
-                        <small className="danger-error">{dniErr ? dniErr : ""}</small>
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="password">Contraseña</label>
-                        <input type="password" name="password" className="login-input" placeholder="Contraseña"
-                            onChange={this.onPasswordChange} />
-                        {this.state.password &&
-                            <div className="password-state">
-                                <div
-                                    className={"pwd pwd-weak " + (pwdWeak ? "show" : "")}></div>
-                                <div
-                                    className={"pwd pwd-medium " + (pwdMedium ? "show" : "")}></div>
-                                <div
-                                    className={"pwd pwd-strong " + (pwdStrong ? "show" : "")}></div>
-                            </div>}
-                        <small className="danger-error">{passwordErr ? passwordErr : ""}</small>
-                    </div>
-                    <button type="button" className="login-btn" onClick={this.submitRegister}>Registrarme</button>
-                    <p>{this.getTxStatus()}</p>
+                    <form onSubmit={this.submitRegister} method="post">
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="nombre">Nombre</label>
+                            <input type="text" name="nombre" className="login-input" placeholder="Introduzca su nombre"
+                                onChange={this.onNombreChange} />
+                            <small className="danger-error">{nombreErr ? nombreErr : ""}</small>
+                        </div>
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="apellido1">Primer apellido</label>
+                            <input type="text" name="apellido1" className="login-input"
+                                placeholder="Introduzca su primer apellido" onChange={this.onApellido1Change} />
+                            <small className="danger-error">{apellido1Err ? apellido1Err : ""}</small>
+                        </div>
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="apellido2">Segundo apellido (opcional)</label>
+                            <input type="text" name="apellido2" className="login-input"
+                                placeholder="Introduzca su segundo apellido" onChange={this.onApellido2Change} />
+                        </div>
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="dni">DNI</label>
+                            <input type="text" name="dni" className="login-input" placeholder="Debe tener 9 caracteres"
+                                onChange={this.onDNIChange} />
+                            <small className="danger-error">{dniErr ? dniErr : ""}</small>
+                        </div>
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="password">Contraseña</label>
+                            <input type="password" name="password" autoComplete="on" className="login-input"
+                                placeholder="Debe tener 5 caracteres como mínimo" onChange={this.onPasswordChange} />
+                            {this.state.password &&
+                                <div className="password-state">
+                                    <div
+                                        className={"pwd pwd-weak " + (pwdWeak ? "show" : "")}></div>
+                                    <div
+                                        className={"pwd pwd-medium " + (pwdMedium ? "show" : "")}></div>
+                                    <div
+                                        className={"pwd pwd-strong " + (pwdStrong ? "show" : "")}></div>
+                                </div>}
+                            <small className="danger-error">{passwordErr ? passwordErr : ""}</small>
+                        </div>
+                        <button type="submit" className="login-btn">Registrarme</button>
+                    </form>
+                    <p>{this.getTxStatus}</p>
                 </div>
             </div>
         );

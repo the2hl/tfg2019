@@ -23,9 +23,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "ganache": "ganache-cli -b 3",
+    "ganache": "ganache-cli -e 9000000 -m cloud barrel judge escape hour lawn list sail illness whip appear magnet",
     "compile": "truffle compile",
-    "migrate": "truffle migrate --reset",
+    "migrate": "truffle migrate --reset --network ganache_cli",
     "backend": "node server server.js",
     "error": "echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p",
     "t-test": "truffle test --show-events"

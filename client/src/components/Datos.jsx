@@ -1,20 +1,22 @@
+/**
+ * @fileoverview Componente visual que muestra los datos personales de un usuario de la app.
+ *
+ * @author Hans Sebastian Huaita Loyola
+ */
+
 import React from 'react';
 
 export const Datos = (props) => {
   return (
-    <div className="inner-container">
+    <div>
       <div className="header">
-        Datos personales
-                        </div>
+        {props.cabecera}
+      </div>
       <div className="box">
-        <h3>Nombre</h3>
-        <p>{props.nombre}</p>
-        <h3>Primer apellido</h3>
-        <p>{props.apellido1}</p>
-        <h3>Segundo apellido</h3>
-        <p>{props.apellido2}</p>
-        <h3>DNI</h3>
-        <p>{props.dni}</p>
+        <p><strong>Nombre: </strong>{props.nombre}</p>
+        <p><strong>Primer apellido: </strong>{props.apellido1}</p>
+        <p><strong>Segundo apellido: </strong>{props.apellido2}</p>
+        <p><strong>DNI: </strong>{props.dni}</p>
       </div>
     </div>
   );

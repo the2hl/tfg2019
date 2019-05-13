@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Componente visual que muestra la pantalla para la visualización y edición del 
+ * fichero con el testamento del usuario de la app.
+ *
+ * @author Hans Sebastian Huaita Loyola
+ */
+
 import React from 'react';
 
 export const Fichero = (props) => {
@@ -7,9 +14,9 @@ export const Fichero = (props) => {
         Mi testamento
       </div>
       <div className="box">
-        <h3>Fichero subido</h3>
+        <p><strong>Fichero subido</strong></p>
         {props.htmlFile}
-        <h4>Subir fichero</h4>
+        <p><strong>Subir fichero</strong></p>
         <form onSubmit={props.onSubmit} >
           <input type='file' onChange={props.capturarFichero} />
           <input type='submit' />

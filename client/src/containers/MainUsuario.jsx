@@ -3,7 +3,7 @@ import Ipfs from '../ipfs.js';
 import { Datos } from '../components/Datos.jsx';
 import { Editar } from '../components/Editar.jsx';
 import { Fichero } from '../components/Fichero.jsx';
-class PantallaPrincipal extends React.Component {
+class MainUsuario extends React.Component {
 
     constructor(props) {
         super(props);
@@ -16,16 +16,11 @@ class PantallaPrincipal extends React.Component {
             nuevoAp1: "",
             nuevoAp2: "",
             nuevoDNI: "",
-            stackIdNombre: null,
-            stackIdAp1: null,
-            stackIdAp2: null,
-            stackIdDNI: null,
             stackIdIPFS: null,
             errorDNI: "",
             buffer: null
         };
         // Funciones auxiliares
-        this.logOut = this.logOut.bind(this);
         this.showDatosBox = this.showDatosBox.bind(this);
         this.showEditarBox = this.showEditarBox.bind(this);
         this.showFicheroBox = this.showFicheroBox.bind(this);
@@ -39,11 +34,6 @@ class PantallaPrincipal extends React.Component {
         this.cambiarDNI = this.cambiarDNI.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.capturarFichero = this.capturarFichero.bind(this);
-    }
-
-    logOut() {
-        console.log("Usuario desconectado");
-        this.props.action();
     }
 
     showDatosBox() {
@@ -75,16 +65,11 @@ class PantallaPrincipal extends React.Component {
     cambiarNombre() {
         const nuevo = this.state.nuevoNombre;
         if (nuevo.length > 1) {
-            const { drizzle, drizzleState } = this.props;
+            const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" con los parámetros "nombre, apellido1, ..."
-            const stackIdAux = contract.methods["cambiarNombre"].cacheSend(
-                this.props.indice, nuevo,
-                { from: drizzleState.accounts[0] } // Número de cuenta actual
-            );
+            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            contract.methods["cambiarNombre"].cacheSend(nuevo);
             console.log("Nombre cambiado a: " + nuevo);
-            // Se guarda el "stackId" para usarlo después
-            this.setState({ stackIdNombre: stackIdAux });
         }
 
     }
@@ -92,62 +77,52 @@ class PantallaPrincipal extends React.Component {
     cambiarApellido1() {
         const nuevo = this.state.nuevoAp1;
         if (nuevo.length > 1) {
-            const { drizzle, drizzleState } = this.props;
+            const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" con los parámetros "nombre, apellido1, ..."
-            const stackIdAux = contract.methods["cambiarApellido1"].cacheSend(
-                this.props.indice, nuevo,
-                { from: drizzleState.accounts[0] } // Número de cuenta actual
-            );
+            // Se informa a Drizzle que se va a llamar al método "cambiarApellido1"
+            contract.methods["cambiarApellido1"].cacheSend(nuevo);
             console.log("Primer apellido cambiado a: " + nuevo);
-            // Se guarda el "stackId" para usarlo después
-            this.setState({ stackIdAp1: stackIdAux });
         }
     }
 
     cambiarApellido2() {
         const nuevo = this.state.nuevoAp2;
         if (nuevo.length > 1) {
-            const { drizzle, drizzleState } = this.props;
+            const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" con los parámetros "nombre, apellido1, ..."
-            const stackIdAux = contract.methods["cambiarApellido2"].cacheSend(
-                this.props.indice, nuevo,
-                {
-                    from: drizzleState.accounts[0], // Número de cuenta actual
-                }
-            );
+            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            contract.methods["cambiarApellido2"].cacheSend(nuevo);
             console.log("Segundo apellido cambiado a: " + nuevo);
-            // Se guarda el "stackId" para usarlo después
-            this.setState({ stackIdAp2: stackIdAux });
         }
     }
 
     cambiarDNI() {
         const nuevo = this.state.nuevoDNI;
         if (nuevo.length === 9) {
-            const { drizzle, drizzleState } = this.props;
+            const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" con los parámetros "nombre, apellido1, ..."
-            const stackIdAux = contract.methods["cambiarDNI"].cacheSend(
-                this.props.indice, nuevo,
-                {
-                    from: drizzleState.accounts[0], // Número de cuenta actual
-                }
-            );
+            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            contract.methods["cambiarDNI"].cacheSend(nuevo);
             console.log("DNI cambiado a: " + nuevo);
-            // Se guarda el "stackId" para usarlo después
-            this.setState({ stackIdDNI: stackIdAux });
         } else {
             this.setState({ errorDNI: "Su DNI debe tener 9 caracteres" });
         }
+    }
+
+    logOut() {
+
     }
 
     capturarFichero(event) {
         event.preventDefault();
         const file = event.target.files[0];
         const reader = new window.FileReader();
-        reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(file, (error) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+        });
         reader.onloadend = () => {
             this.setState({ buffer: Buffer(reader.result) });
         }
@@ -160,26 +135,21 @@ class PantallaPrincipal extends React.Component {
                 console.error(error);
                 return;
             }
-            const { drizzle, drizzleState } = this.props;
+            const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
             const ipfsHash = result[0].hash
             // Se informa a Drizzle que se va a llamar al método "cambiarIPFSHash" con los parámetros "this.props.indice, hash"
-            const stackIdAux = contract.methods["cambiarIPFSHash"].cacheSend(
-                this.props.indice, ipfsHash,
-                {
-                    from: drizzleState.accounts[0], // Número de cuenta actual
-                }
-            );
+            const stackIdAux = contract.methods["cambiarIPFSHash"].cacheSend(ipfsHash);
             console.log("Hash IPFS: " + ipfsHash);
-            // Se guarda el "stackId" para usarlo después
+            // Se guarda el "stackId" para mostrar después información de la transacción
             this.setState({ stackIdIPFS: stackIdAux });
         })
     }
 
     componentDidMount() {
-        const { drizzle, indice } = this.props;
+        const { drizzle, direccion } = this.props;
         const contract = drizzle.contracts.TFG;
-        let dataKeyAux = contract.methods["contratos"].cacheCall(indice);
+        let dataKeyAux = contract.methods["contratos"].cacheCall(direccion);
         this.setState({ dataKey: dataKeyAux });
     }
 
@@ -195,7 +165,7 @@ class PantallaPrincipal extends React.Component {
             let htmlFile;
             if (ipfsHash !== "") {
                 htmlFile = (
-                    <iframe src={`https://ipfs.io/ipfs/${ipfsHash}`} title="IPFS File" width="650" height="650">
+                    <iframe src={`https://ipfs.io/ipfs/${ipfsHash}`} title="IPFS File" width="500" height="450">
                         Este navegador no soporta visualizar PDFs. Por favor, descargue el PDF para poder verlo.
                     </iframe>
                 );
@@ -203,7 +173,7 @@ class PantallaPrincipal extends React.Component {
             let htmlCode = "";
             if (this.state.isDatosOpen) {
                 htmlCode = (
-                    <Datos nombre={nombre} apellido1={apellido1} apellido2={apellido2} dni={dni} />
+                    <Datos cabecera="Mis datos" nombre={nombre} apellido1={apellido1} apellido2={apellido2} dni={dni} />
                 );
             } else if (this.state.isEditarOpen) {
                 htmlCode = (
@@ -228,20 +198,22 @@ class PantallaPrincipal extends React.Component {
                         <div
                             className={"controller " + (this.state.isDatosOpen ? "selected-controller" : "")}
                             onClick={this.showDatosBox}>
-                            Mis datos
+                            Datos
                         </div>
                         <div
                             className={"controller " + (this.state.isEditarOpen ? "selected-controller" : "")}
                             onClick={this.showEditarBox}>
-                            Editar datos
+                            Editar
                         </div>
                         <div
                             className={"controller " + (this.state.isFicheroOpen ? "selected-controller" : "")}
                             onClick={this.showFicheroBox}>
-                            Documento
+                            Testamento
                         </div>
-                        <div className="controller" onClick={this.logOut}>
-                            Cerrar Sesión
+                        <div
+                            className={"controller "}
+                            onClick={this.props.action}>
+                            Logout
                         </div>
                     </div>
                     <div className="box-container" role="contentinfo">
@@ -250,8 +222,8 @@ class PantallaPrincipal extends React.Component {
                 </div>
             );
         } else {
-            return null;
+            return (<div></div>);
         }
     }
 }
-export default PantallaPrincipal;
+export default MainUsuario;

@@ -1,10 +1,16 @@
+/**
+ * @fileoverview Componente visual que muestra la pantalla de edición de los datos personales de un usuario de la app.
+ *
+ * @author Hans Sebastian Huaita Loyola
+ */
+
 import React from 'react';
 
 export const Editar = (props) => {
   return (
     <div className="inner-container">
       <div className="header">
-        Editar datos personales
+        Editar mis datos
       </div>
       <div className="box">
         <div className="input-group">

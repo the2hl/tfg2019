@@ -6,113 +6,82 @@ class Login extends React.Component {
         super(props);
         this.state = {
             dataKey: null,
-            dni: "",
             password: "",
-            dniErr: "",
             passwordErr: ""
         };
         this.submitLogin = this.submitLogin.bind(this);
-        this.logearUsuario = this.logearUsuario.bind(this);
+        this.onPasswordChange = this.onPasswordChange.bind(this);
     }
 
     componentDidUpdate() {
-        const { TFG } = this.props.drizzleState.contracts;
-        // Se obtiene la variable usando la "dataKey" guardada
-        let resultado;
-        if (TFG.buscarContrato[this.state.dataKey]) {
-            resultado = parseInt(TFG.buscarContrato[this.state.dataKey].value);
-        }
-        let dniErrAux = "", passwordErrAux = "";
-        let cambio = false;
-        if (resultado === -3) {
-            dniErrAux = "El DNI introducido no está registrado";
-            passwordErrAux = "La contraseña introducida es errónea";
-            if (dniErrAux !== this.state.dniErr && passwordErrAux !== this.state.passwordErr) {
-                cambio = true;
+        if (this.state.password.length >= 5) {
+            const { TFG } = this.props.drizzleState.contracts;
+            // Se obtiene la variable usando la "dataKey" guardada
+            if (TFG.autenticar[this.state.dataKey]) {
+                let resultado = false;
+                resultado = TFG.autenticar[this.state.dataKey].value;
+                let passwordErrAux = "";
+                let cambio = false;
+                if (!resultado) {
+                    passwordErrAux = "La contraseña introducida es incorrecta";
+                    console.log("Contraseña incorrecta");
+                    if (passwordErrAux !== this.state.passwordErr) {
+                        cambio = true;
+                    }
+                } else {
+                    console.log("Contraseña correcta");
+                    this.props.action();
+                }
+                if (cambio) {
+                    this.setState({ passwordErr: passwordErrAux });
+                }
             }
-        } else if (resultado === -2) {
-            dniErrAux = "El DNI introducido no está registrado";
-            if (dniErrAux !== this.state.dniErr) {
-                cambio = true;
-            }
-        } else if (resultado === -1) {
-            passwordErrAux = "La contraseña introducida es errónea";
-            if (passwordErrAux !== this.state.passwordErr) {
-                cambio = true;
-            }
-        } else if (resultado > 0) {
-            console.log("Usuario loggeado");
-            this.logearUsuario(resultado);
-        }
-        if (cambio) {
-            this.setState({ dniErr: dniErrAux, passwordErr: passwordErrAux });
+
         }
     }
 
-    submitLogin() {
-        let errorDNILong = false, errorPasswordLong = false;
-        const dni = this.state.dni;
-        if (dni.length !== 9) {
-            errorDNILong = true;
-        }
+    submitLogin(e) {
+        e.preventDefault(); // Evitar que se recargue la página al hacer submit. Necesario en React.
+        let errorPasswordLong = false;
         if (this.state.password.length < 5) {
             errorPasswordLong = true;
         }
-
-        let dniErrAux = "", passwordErrAux = "";
-        if (errorDNILong) {
-            dniErrAux = "Su DNI debe tener 9 caracteres";
-        }
+        let passwordErrAux = "";
         if (errorPasswordLong) {
             passwordErrAux = "Su contraseña debe tener 5 caracteres como mínimo";
-        }
-        if (!errorDNILong && !errorPasswordLong) {
+            this.setState({ passwordErr: passwordErrAux });
+        } else {
+            console.log("Contraseña introducida: " + this.state.password);
             const hash = Sha256(this.state.password);
             const { drizzle } = this.props;
             const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "buscarContrato" con los parámetros "dni, hash"
-            const dataKeyAux = contract.methods["buscarContrato"].cacheCall(dni, hash);
-            console.log("Contrato buscado: dni " + dni + " y hash " + hash);
+            // Se informa a Drizzle que se va a llamar al método "autenticar"
+            const dataKeyAux = contract.methods["autenticar"].cacheCall(hash);
             // Se guarda el "dataKey" para usarlo después
-            this.setState({ dataKey: dataKeyAux, dniErr: dniErrAux, passwordErr: passwordErrAux });
-        } else {
-            this.setState({ dniErr: dniErrAux, passwordErr: passwordErrAux });
+            this.setState({ dataKey: dataKeyAux, passwordErr: passwordErrAux });
         }
-
-    }
-
-    onDNIChange(e) {
-        this.setState({ dni: e.target.value });
     }
 
     onPasswordChange(e) {
         this.setState({ password: e.target.value });
     }
 
-    logearUsuario(indice) {
-        this.props.action(indice);
-    }
-
     render() {
         return (
-            <div className="inner-container">
+            <div className="box-container" role="contentinfo">
                 <div className="header">
                     Iniciar Sesión
-                </div>
+                    </div>
                 <div className="box">
-                    <div className="input-group">
-                        <label htmlFor="dni">DNI</label>
-                        <input type="text" name="dni" id="dni" className="login-input" placeholder="DNI"
-                            onChange={(e) => this.onDNIChange(e)} />
-                        <small className="danger-error">{this.state.dniErr}</small>
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="contraseña">Contraseña</label>
-                        <input type="password" name="contraseña" id="contraseña" aria-label="contraseña" className="login-input" placeholder="Contraseña" onChange={(e) => this.onPasswordChange(e)} />
-                        <small className="danger-error">{this.state.passwordErr}</small>
-                    </div>
-                    <button type="button" className="login-btn"
-                        onClick={() => this.submitLogin()}>Iniciar Sesión</button>
+                    <form onSubmit={this.submitLogin}>
+                        <div className="input-group">
+                            <label className="login-label" htmlFor="contraseña">Contraseña</label>
+                            <input type="password" name="contraseña" autoComplete="on" id="contraseña" aria-label="contraseña"
+                                className="login-input" placeholder="Debe tener 5 caracteres como mínimo" onChange={this.onPasswordChange} />
+                            <small className="danger-error">{this.state.passwordErr}</small>
+                            <button type="submit" className="login-btn">Iniciar Sesión</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         );

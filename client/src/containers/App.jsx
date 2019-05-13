@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import '../assets/styles/App.scss';
-import Login from "./Login.jsx";
+import Acceso from "./Acceso.jsx";
 import Register from "./Register.jsx";
-import PantallaPrincipal from "./PantallaPrincipal.jsx";
+import MainUsuario from "./MainUsuario.jsx";
+import MainSuperusuario from "./MainSuperusuario.jsx";
+import Creador from "./Creador.jsx";
 import { Creditos } from '../components/Creditos';
 
 class App extends Component {
@@ -10,19 +12,24 @@ class App extends Component {
     super(props)
     this.state = {
       loading: true,
-      isLoginOpen: true,
-      isRegisterOpen: false,
+      isLoginOpen: false,
+      isRegisterOpen: true,
       isCreditosOpen: false,
-      isLogged: false,
-      posicion: -1,
-      drizzleState: null
+      isRegistrado: false,
+      isAutenticado: false,
+      isDesconectado: false,
+      drizzleState: null,
+      creadorDir: null,
+      dirBuscada: null
     };
     // Funciones auxiliares
     this.showLogin = this.showLogin.bind(this);
     this.showRegister = this.showRegister.bind(this);
     this.showCreditos = this.showCreditos.bind(this);
-    this.usuarioLogeado = this.usuarioLogeado.bind(this);
-    this.usuarioDesconectado = this.usuarioDesconectado.bind(this);
+    this.usuarioRegistrado = this.usuarioRegistrado.bind(this);
+    this.usuarioAutenticado = this.usuarioAutenticado.bind(this);
+    this.getCreadorDir = this.getCreadorDir.bind(this);
+    this.logOut = this.logOut.bind(this);
   }
 
   // Al montar el componente
@@ -36,7 +43,8 @@ class App extends Component {
 
       // Se comprueba si está listo: si lo está, se actualiza el estado del componante local
       if (drizzleState.drizzleStatus.initialized) {
-        this.setState({ loading: false, drizzleState });
+        this.setState({ loading: false, drizzleState }
+        );
       }
     });
   }
@@ -57,36 +65,42 @@ class App extends Component {
     this.setState({ isCreditosOpen: true, isLoginOpen: false, isRegisterOpen: false });
   }
 
-  usuarioLogeado(indice) {
-    this.setState({ isLogged: true, posicion: indice });
+  usuarioRegistrado(resultado) {
+    this.setState({ isRegistrado: resultado });
   }
 
-  usuarioDesconectado() {
-    this.setState({ isLogged: false, posicion: -1 });
+  usuarioAutenticado() {
+    this.setState({ isAutenticado: true, isDesconectado: false });
+  }
+
+  getCreadorDir(direccion) {
+    this.setState({ creadorDir: direccion });
+  }
+
+  logOut() {
+    this.setState({ isAutenticado: false, isDesconectado: true });
   }
 
   render() {
     if (this.state.loading) {
       return "Cargando Drizzle...";
     }
+    let cuenta = this.state.drizzleState.accounts[0];
     let htmlCode;
-    if (this.state.isLogged) {
+    if (cuenta === this.state.creadorDir) {
       htmlCode = (
-        <PantallaPrincipal
-          drizzle={this.props.drizzle}
-          drizzleState={this.state.drizzleState}
-          indice={this.state.posicion}
-          action={this.usuarioDesconectado}
-        />);
-    } else {
+        <div>
+          <MainSuperusuario
+            drizzle={this.props.drizzle}
+            drizzleState={this.state.drizzleState}
+          />
+        </div>
+      );
+    }
+    else if (!this.state.isRegistrado && !this.state.isAutenticado) {
       htmlCode = (
         <div>
           <div className="box-controller" role="navigation">
-            <div
-              className={"controller " + (this.state.isLoginOpen ? "selected-controller" : "")}
-              onClick={this.showLogin}>
-              Iniciar Sesión
-            </div>
             <div
               className={"controller " + (this.state.isRegisterOpen ? "selected-controller" : "")}
               onClick={this.showRegister}>
@@ -99,11 +113,6 @@ class App extends Component {
             </div>
           </div>
           <div className="box-container" role="contentinfo">
-            {this.state.isLoginOpen &&
-              <Login
-                drizzle={this.props.drizzle}
-                drizzleState={this.state.drizzleState}
-                action={this.usuarioLogeado} />}
             {this.state.isRegisterOpen &&
               <Register
                 drizzle={this.props.drizzle}
@@ -113,9 +122,34 @@ class App extends Component {
         </div>
       );
     }
+    else if (this.state.isAutenticado && this.state.isRegistrado) {
+      htmlCode = (
+        <div>
+          <MainUsuario
+            drizzle={this.props.drizzle}
+            drizzleState={this.state.drizzleState}
+            direccion={cuenta}
+            action={this.logOut}
+          />
+        </div>
+      );
+    }
     return (
       <div className="root-container">
-        <h1 className="header" role="complementary">LastWillManager</h1>
+        <div className="nombre-app" role="complementary">LastWillManager</div>
+        <Creador
+          drizzle={this.props.drizzle}
+          drizzleState={this.state.drizzleState}
+          action={this.getCreadorDir}
+        />
+        <Acceso
+          drizzle={this.props.drizzle}
+          drizzleState={this.state.drizzleState}
+          actionRegistrar={this.usuarioRegistrado}
+          actionAutenticar={this.usuarioAutenticado}
+          isDesconectado={this.state.isDesconectado}
+          creadorDir={this.state.creadorDir}
+        />
         {htmlCode}
       </div>
     );
