@@ -1,75 +1,118 @@
+/**
+ * @fileoverview Componente contenedor que gestiona las pantallas que ve el superusuario.
+ *
+ * @author Hans Sebastian Huaita Loyola
+ */
+
+/* IMPORTS */
 import React from 'react';
-import BuscarContrato from './BuscarContrato.jsx';
+import BuscarTestamento from './BuscarTestamento.jsx'; // Componente contenedor hijo
+import { BusquedaTestamento } from '../components/BusquedaTestamento.jsx'; // Componente visual hijo
+
 class MainSuperusuario extends React.Component {
 
     constructor(props) {
         super(props);
+
+        /* Estado del componente */
         this.state = {
+            /**
+             * Propiedad que almacena la clave necesaria para llamar al método "isRegistrado" del contrato Ethereum usando Drizzle.
+             *  @type {string}
+             */
             dataKey: null,
-            isBuscado: false,
+            /**
+             * Propiedad que indica si se muestra la página de búsqueda de un testamento.
+             *  @type {boolean}
+             */
+            mostrarPagBusq: true,
+            /**
+             * Propiedad que almacena el dni introducido por el superusuario.
+             *  @type {string}
+             */
             dniBuscado: "",
+            /**
+             * Propiedad que almacena el mensaje de error en relación al dni introducido por el superusuario.
+             *  @type {string}
+             */
             errorDNI: ""
         };
-        // Funciones auxiliares
+
+        // Binding de las funciones auxiliares
+        this.crearTraza = this.crearTraza.bind(this);
         this.onDNIChange = this.onDNIChange.bind(this);
-        this.buscarDNI = this.buscarDNI.bind(this);
-        this.volverPagBusqueda = this.volverPagBusqueda.bind(this);
-        this.contratoInexistente = this.contratoInexistente.bind(this);
+        this.buscarTestamento = this.buscarTestamento.bind(this);
+        this.mostrarPagBusqeda = this.mostrarPagBusqeda.bind(this);
+        this.testamentoNoRegistrado = this.testamentoNoRegistrado.bind(this);
     }
 
-    onDNIChange(e) {
-        this.setState({ dniBuscado: e.target.value });
+    /* FUNCIONES AUXILIARES */
+
+    /**
+     * Función que almacena el dni introducido por el superusuario.
+     * @param {*} event 
+     */
+    onDNIChange(event) {
+        this.setState({ dniBuscado: event.target.value });
     }
 
-    buscarDNI() {
+    /**
+     * Función que se llama cuando el superusario introduce el dni asociado al testamento que quiere buscar y pulsa el botón "Buscar".
+     * @param {*} event
+     */
+    buscarTestamento(event) {
+        event.preventDefault(); // Evita que se recargue la página al hacer submit. Necesario en React.
         let dni = this.state.dniBuscado;
         if (dni.length === 9) {
-            console.log("DNI buscado: " + dni);
-            this.setState({ isBuscado: true });
+            this.crearTraza("DNI buscado: " + dni);
+            this.setState({ mostrarPagBusq: false });
         } else {
-            this.setState({ errorDNI: "Su DNI debe tener 9 caracteres", isBuscado: false });
+            this.setState({ errorDNI: "Su DNI debe tener 9 caracteres", mostrarPagBusq: true });
         }
     }
 
-    volverPagBusqueda() {
-        this.setState({ isBuscado: false, dniBuscado: "" });
+    /**
+     * Función que se llama para mostrar la página de búsqueda de un testamento.
+     */
+    mostrarPagBusqeda() {
+        this.setState({ mostrarPagBusq: true, dniBuscado: "", errorDNI: "" });
     }
 
-    contratoInexistente() {
-        this.setState({ errorDNI: "No existe ningún contrato con el DNI buscado", isBuscado: false })
+    /**
+     * Función que se llama cuando el contrato buscado no está registrado en la app.
+     */
+    testamentoNoRegistrado() {
+        this.setState({ errorDNI: "No existe ningún testamento con el DNI buscado", mostrarPagBusq: true })
+    }
+
+    /**
+     * Función que muestra por consola una traza. Aparece el nombre de la clase en rojo.
+     * @param {string} mensaje Traza que se muestra en azul.
+     */
+    crearTraza(mensaje) {
+        const debugTag = "MainSuperusuario: ";
+        console.log("%c" + debugTag + "%c" + mensaje, "color: red", "color: blue");
     }
 
     render() {
         let htmlCode = "";
-        if (this.state.isBuscado) {
+        if (!this.state.mostrarPagBusq) {
             htmlCode = (
-                <BuscarContrato
+                <BuscarTestamento
                     drizzle={this.props.drizzle}
                     drizzleState={this.props.drizzleState}
                     dni={this.state.dniBuscado}
-                    action={this.volverPagBusqueda}
-                    actionContInex={this.contratoInexistente}
+                    actionVolver={this.mostrarPagBusqeda}
+                    actionContInex={this.testamentoNoRegistrado}
                 />
             );
-        }
-        else {
+        } else {
             htmlCode = (
-                <div className="box-container" role="contentinfo">
-                    <div className="inner-container">
-                        <div className="header">
-                            Buscar contrato
-                        </div>
-                        <div className="box">
-                            <div className="input-group">
-                                <label className="login-label" htmlFor="dni">DNI</label>
-                                <input type="text" name="dni" id="contraseña" aria-label="dni"
-                                    className="login-input" placeholder="Debe tener 9 caracteres" onChange={this.onDNIChange} />
-                                <small className="danger-error">{this.state.errorDNI}</small>
-                            </div>
-                            <button type="button" className="login-btn" onClick={this.buscarDNI}>Buscar</button>
-                        </div>
-                    </div>
-                </div >
+                <BusquedaTestamento
+                    buscarTestamento={this.buscarTestamento}
+                    onDNIChange={this.onDNIChange}
+                    errorDNI={this.state.errorDNI}
+                />
             );
         }
 

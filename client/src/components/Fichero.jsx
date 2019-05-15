@@ -17,7 +17,7 @@ export const Fichero = (props) => {
         <p><strong>Fichero subido</strong></p>
         {props.htmlFile}
         <p><strong>Subir fichero</strong></p>
-        <form onSubmit={props.onSubmit} >
+        <form onSubmit={props.enviarFichero} >
           <input type='file' onChange={props.capturarFichero} />
           <input type='submit' />
         </form>

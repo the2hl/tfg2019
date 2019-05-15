@@ -1,29 +1,79 @@
+/**
+ * @fileoverview Componente contenedor que gestiona las pantallas que ve un usuario de la app.
+ *
+ * @author Hans Sebastian Huaita Loyola
+ */
+
+/* IMPORTS */
 import React from 'react';
 import Ipfs from '../ipfs.js';
-import { Datos } from '../components/Datos.jsx';
-import { Editar } from '../components/Editar.jsx';
-import { Fichero } from '../components/Fichero.jsx';
+import { Datos } from '../components/Datos.jsx'; // Componente visual hijo
+import { Editar } from '../components/Editar.jsx'; // Componente visual hijo
+import { Fichero } from '../components/Fichero.jsx'; // Componente visual hijo
+
 class MainUsuario extends React.Component {
 
     constructor(props) {
         super(props);
+
+        /* Estado del componente */
         this.state = {
+            /**
+             * Propiedad que almacena la clave necesaria para llamar al método "isRegistrado" del contrato Ethereum usando Drizzle.
+             *  @type {string}
+             */
             dataKey: null,
-            isDatosOpen: true,
-            isEditarOpen: false,
-            isFicheroOpen: false,
+            /**
+             * Propiedad que indica si está abierta la pestaña de Datos.
+             *  @type {boolean}
+             */
+            isDatosAbierto: true,
+            /**
+             * Propiedad que indica si está abierta la pestaña de Editar.
+             *  @type {boolean}
+             */
+            isEditarAbierto: false,
+            /**
+             * Propiedad que indica si está abierta la pestaña de Testamento.
+             *  @type {boolean}
+             */
+            isTestamentoAbierto: false,
+            /**
+             * Propiedad que almacena el nuevo nombre introducido por el usuario.
+             *  @type {string}
+             */
             nuevoNombre: "",
+            /**
+             * Propiedad que almacena el nuevo priper apellido introducido por el usuario.
+             *  @type {string}
+             */
             nuevoAp1: "",
+            /**
+             * Propiedad que almacena el nuevo segundo apellido introducido por el usuario.
+             *  @type {string}
+             */
             nuevoAp2: "",
+            /**
+             * Propiedad que almacena el nuevo dni introducido por el usuario.
+             *  @type {string}
+             */
             nuevoDNI: "",
-            stackIdIPFS: null,
+            /**
+             * Propiedad que almacena el mensaje de error en relación al dni introducido por el usuario.
+             *  @type {string}
+             */
             errorDNI: "",
+            /**
+             * Propiedad que almacena el buffer asociado al fichero subido por el usuario.
+             *  @type {*}
+             */
             buffer: null
         };
-        // Funciones auxiliares
-        this.showDatosBox = this.showDatosBox.bind(this);
-        this.showEditarBox = this.showEditarBox.bind(this);
-        this.showFicheroBox = this.showFicheroBox.bind(this);
+
+        // Binding de las funciones auxiliares
+        this.mostrarDatos = this.mostrarDatos.bind(this);
+        this.mostrarEditar = this.mostrarEditar.bind(this);
+        this.mostrarTestamento = this.mostrarTestamento.bind(this);
         this.onNombreChange = this.onNombreChange.bind(this);
         this.onAp1Change = this.onAp1Change.bind(this);
         this.onAp2Change = this.onAp2Change.bind(this);
@@ -32,89 +82,150 @@ class MainUsuario extends React.Component {
         this.cambiarApellido1 = this.cambiarApellido1.bind(this);
         this.cambiarApellido2 = this.cambiarApellido2.bind(this);
         this.cambiarDNI = this.cambiarDNI.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
+        this.enviarFichero = this.enviarFichero.bind(this);
         this.capturarFichero = this.capturarFichero.bind(this);
+        this.crearTraza = this.crearTraza.bind(this);
     }
 
-    showDatosBox() {
-        this.setState({ isDatosOpen: true, isEditarOpen: false, isFicheroOpen: false });
-    }
-    showEditarBox() {
-        this.setState({ isEditarOpen: true, isDatosOpen: false, isFicheroOpen: false });
-    }
-    showFicheroBox() {
-        this.setState({ isFicheroOpen: true, isDatosOpen: false, isEditarOpen: false });
+    /* FUNCIONES PROPIAS DE LOS COMPONENTES REACT */
+
+    componentDidMount() {
+        const { drizzle, drizzleState } = this.props;
+        const contract = drizzle.contracts.LastWillManager;
+        // Se informa a Drizzle de que se va a llamar al método "testamentos"
+        let dataKeyAux = contract.methods["testamentos"].cacheCall(drizzleState.accounts[0]);
+        // Se guarda la "dataKey" para usarla después
+        this.setState({ dataKey: dataKeyAux });
     }
 
+    /* FUNCIONES AUXILIARES */
+
+    /**
+     * Función que muestra la pestaña "Datos".
+     */
+    mostrarDatos() {
+        this.setState({ isDatosAbierto: true, isEditarAbierto: false, isTestamentoAbierto: false });
+    }
+
+    /**
+     * Función que muestra la pestaña "Editar".
+     */
+    mostrarEditar() {
+        this.setState({ isEditarAbierto: true, isDatosAbierto: false, isTestamentoAbierto: false });
+    }
+
+    /**
+     * Función que muestra la pestaña "Testamento".
+     */
+    mostrarTestamento() {
+        this.setState({ isTestamentoAbierto: true, isDatosAbierto: false, isEditarAbierto: false });
+    }
+
+    /**
+     * Función que almacena el nombre introducido por el usuario.
+     * @param {*} e 
+     */
     onNombreChange(e) {
         this.setState({ nuevoNombre: e.target.value });
     }
 
+    /**
+     * Función que almacena el primer apellido introducido por el usuario.
+     * @param {*} e 
+     */
     onAp1Change(e) {
         this.setState({ nuevoAp1: e.target.value });
     }
 
+    /**
+     * Función que almacena el segundo apellido introducido por el usuario.
+     * @param {*} e 
+     */
     onAp2Change(e) {
         this.setState({ nuevoAp2: e.target.value });
     }
 
+    /**
+     * Función que almacena el dni introducido por el usuario.
+     * @param {*} e 
+     */
     onDNIChange(e) {
         this.setState({ nuevoDNI: e.target.value });
     }
 
+    /**
+     * Función que se llama cuando el usario introduce el nuevo nombre y pulsa el botón "Cambiar".
+     */
     cambiarNombre() {
         const nuevo = this.state.nuevoNombre;
+        // Si el nuevo nombre tiene más de 1 caracter
         if (nuevo.length > 1) {
             const { drizzle } = this.props;
-            const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            const contract = drizzle.contracts.LastWillManager;
+            // Se informa a Drizzle que se va a llamar al método "cambiarNombre"
+            // Al ser un método que no devuelve nada, no es necesario almacenar la dataKey
             contract.methods["cambiarNombre"].cacheSend(nuevo);
-            console.log("Nombre cambiado a: " + nuevo);
+            this.crearTraza("Nombre cambiado a: " + nuevo);
         }
 
     }
 
+    /**
+     * Función que se llama cuando el usario introduce el nuevo primer apellido y pulsa el botón "Cambiar".
+     */
     cambiarApellido1() {
         const nuevo = this.state.nuevoAp1;
+        // Si el nuevo primer apellido tiene más de 1 caracter
         if (nuevo.length > 1) {
             const { drizzle } = this.props;
-            const contract = drizzle.contracts.TFG;
+            const contract = drizzle.contracts.LastWillManager;
             // Se informa a Drizzle que se va a llamar al método "cambiarApellido1"
+            // Al ser un método que no devuelve nada, no es necesario almacenar la dataKey
             contract.methods["cambiarApellido1"].cacheSend(nuevo);
-            console.log("Primer apellido cambiado a: " + nuevo);
+            this.crearTraza("Primer apellido cambiado a: " + nuevo);
         }
     }
 
+    /**
+     * Función que se llama cuando el usario introduce el nuevo segundo apellido y pulsa el botón "Cambiar".
+     */
     cambiarApellido2() {
         const nuevo = this.state.nuevoAp2;
+        // Si el nuevo segundo apellido tiene más de 1 caracter
         if (nuevo.length > 1) {
             const { drizzle } = this.props;
-            const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            const contract = drizzle.contracts.LastWillManager;
+            // Se informa a Drizzle que se va a llamar al método "cambiarApellido2"
+            // Al ser un método que no devuelve nada, no es necesario almacenar la dataKey
             contract.methods["cambiarApellido2"].cacheSend(nuevo);
-            console.log("Segundo apellido cambiado a: " + nuevo);
+            this.crearTraza("Segundo apellido cambiado a: " + nuevo);
         }
     }
 
+    /**
+     * Función que se llama cuando el usario introduce el nuevo dni y pulsa el botón "Cambiar".
+     */
     cambiarDNI() {
         const nuevo = this.state.nuevoDNI;
+        // Si el nuevo dni tiene más de 1 caracter
         if (nuevo.length === 9) {
             const { drizzle } = this.props;
-            const contract = drizzle.contracts.TFG;
-            // Se informa a Drizzle que se va a llamar al método "nuevoContrato" 
+            const contract = drizzle.contracts.LastWillManager;
+            // Se informa a Drizzle que se va a llamar al método "cambiarDNI"
+            // Al ser un método que no devuelve nada, no es necesario almacenar la dataKey
             contract.methods["cambiarDNI"].cacheSend(nuevo);
-            console.log("DNI cambiado a: " + nuevo);
+            this.crearTraza("DNI cambiado a: " + nuevo);
         } else {
             this.setState({ errorDNI: "Su DNI debe tener 9 caracteres" });
         }
     }
 
-    logOut() {
-
-    }
-
+    /**
+     * Función que se llama cuando el usuario selecciona el fichero con su testamento.
+     * @param {*} event 
+     */
     capturarFichero(event) {
-        event.preventDefault();
+        event.preventDefault(); // Evita que se recargue la página al hacer submit. Necesario en React.
         const file = event.target.files[0];
         const reader = new window.FileReader();
         reader.readAsArrayBuffer(file, (error) => {
@@ -128,35 +239,40 @@ class MainUsuario extends React.Component {
         }
     }
 
-    onSubmit(event) {
-        event.preventDefault();
+    /**
+     * Función que se llama cuando el usuario pulsa el botón "Enviar" en la pantalla "Testamento".
+     * @param {*} event 
+     */
+    enviarFichero(event) {
+        event.preventDefault(); // Evita que se recargue la página al hacer submit. Necesario en React.
         Ipfs.add(this.state.buffer, (error, result) => {
             if (error) {
                 console.error(error);
                 return;
             }
             const { drizzle } = this.props;
-            const contract = drizzle.contracts.TFG;
+            const contract = drizzle.contracts.LastWillManager;
             const ipfsHash = result[0].hash
-            // Se informa a Drizzle que se va a llamar al método "cambiarIPFSHash" con los parámetros "this.props.indice, hash"
-            const stackIdAux = contract.methods["cambiarIPFSHash"].cacheSend(ipfsHash);
-            console.log("Hash IPFS: " + ipfsHash);
-            // Se guarda el "stackId" para mostrar después información de la transacción
-            this.setState({ stackIdIPFS: stackIdAux });
+            // Se informa a Drizzle que se va a llamar al método "cambiarIPFSHash"
+            contract.methods["cambiarIPFSHash"].cacheSend(ipfsHash);
+            this.crearTraza("Hash IPFS: " + ipfsHash);
         })
     }
 
-    componentDidMount() {
-        const { drizzle, direccion } = this.props;
-        const contract = drizzle.contracts.TFG;
-        let dataKeyAux = contract.methods["contratos"].cacheCall(direccion);
-        this.setState({ dataKey: dataKeyAux });
+    /**
+     * Función que muestra por consola una traza. Aparece el nombre de la clase en rojo.
+     * @param {string} mensaje Traza que se muestra en azul.
+     */
+    crearTraza(mensaje) {
+        const debugTag = "MainUsuario: ";
+        console.log("%c" + debugTag + "%c" + mensaje, "color: red", "color: blue");
     }
 
     render() {
-        const { TFG } = this.props.drizzleState.contracts;
-        if (TFG.contratos[this.state.dataKey]) {
-            let contrato = TFG.contratos[this.state.dataKey].value;
+        const { LastWillManager } = this.props.drizzleState.contracts;
+        if (LastWillManager.testamentos[this.state.dataKey]) {
+            // Se obtiene el resultado de llamar al método "testamentos" usando la "dataKeyReg" guardada
+            let contrato = LastWillManager.testamentos[this.state.dataKey].value;
             let nombre = contrato.nombre;
             let apellido1 = contrato.apellido1;
             let apellido2 = contrato.apellido2;
@@ -171,11 +287,11 @@ class MainUsuario extends React.Component {
                 );
             }
             let htmlCode = "";
-            if (this.state.isDatosOpen) {
+            if (this.state.isDatosAbierto) {
                 htmlCode = (
                     <Datos cabecera="Mis datos" nombre={nombre} apellido1={apellido1} apellido2={apellido2} dni={dni} />
                 );
-            } else if (this.state.isEditarOpen) {
+            } else if (this.state.isEditarAbierto) {
                 htmlCode = (
                     <Editar
                         nombre={nombre} apellido1={apellido1} apellido2={apellido2} dni={dni}
@@ -188,7 +304,7 @@ class MainUsuario extends React.Component {
                 );
             } else {
                 htmlCode = (
-                    <Fichero htmlFile={htmlFile} onSubmit={this.onSubmit} capturarFichero={this.capturarFichero} />
+                    <Fichero htmlFile={htmlFile} enviarFichero={this.enviarFichero} capturarFichero={this.capturarFichero} />
                 );
             }
 
@@ -196,18 +312,18 @@ class MainUsuario extends React.Component {
                 <div>
                     <div className="box-controller" role="navigation">
                         <div
-                            className={"controller " + (this.state.isDatosOpen ? "selected-controller" : "")}
-                            onClick={this.showDatosBox}>
+                            className={"controller " + (this.state.isDatosAbierto ? "selected-controller" : "")}
+                            onClick={this.mostrarDatos}>
                             Datos
                         </div>
                         <div
-                            className={"controller " + (this.state.isEditarOpen ? "selected-controller" : "")}
-                            onClick={this.showEditarBox}>
+                            className={"controller " + (this.state.isEditarAbierto ? "selected-controller" : "")}
+                            onClick={this.mostrarEditar}>
                             Editar
                         </div>
                         <div
-                            className={"controller " + (this.state.isFicheroOpen ? "selected-controller" : "")}
-                            onClick={this.showFicheroBox}>
+                            className={"controller " + (this.state.isTestamentoAbierto ? "selected-controller" : "")}
+                            onClick={this.mostrarTestamento}>
                             Testamento
                         </div>
                         <div

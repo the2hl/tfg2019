@@ -1,5 +1,5 @@
-const TFG = artifacts.require("TFG");
+const LastWillManager = artifacts.require("LastWillManager");
 
-module.exports = function(deployer) {
-  deployer.deploy(TFG);
+module.exports = function (deployer) {
+  deployer.deploy(LastWillManager);
 };

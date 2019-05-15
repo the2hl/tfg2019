@@ -1,9 +1,8 @@
 pragma solidity ^0.5.0;
 
-contract TFG {
+contract LastWillManager {
 
-  struct Contrato{
-    //uint id; // Identificador del contrato
+  struct Testamento{
     address direccion;
     string nombre; // Nombre del propietario del contrato
     string apellido1; // Primer apellido del propietario del contrato
@@ -13,19 +12,17 @@ contract TFG {
     string ipfsHash; // Hash IPFS del contrato
   }
 
-  //uint public identificador = 1;
+  uint public nTestamentos;
 
-  uint public nContratos;
+  address[] public testamentosDirs;
 
-  address[] public contratosDirs;
+  mapping (address => Testamento) public testamentos;
 
-  mapping (address => Contrato) public contratos;
+  address public superusuario;
 
-  address public creador;
+  // EVENTOS
 
-  /***** EVENTOS *****/
-
-  event ContratoCreado(
+  event TestamentoCreado(
     address direccion,
     string nombre,
     string apellido1,
@@ -34,7 +31,7 @@ contract TFG {
     string passwordHash
   );
 
-  event DireccionCreador(address creador);
+  event DireccionSuperusuario(address superusuario);
 
   event NombreCambiado(address direccion, string nombre);
 
@@ -46,33 +43,34 @@ contract TFG {
 
   event IPFSHashCambiado(address direccion, string ipfsHash);
 
-  event ContratoYaExistente(uint posicion);
+  event TestamentoYaExistente(uint posicion);
 
   /***** FUNCIONES *****/
 
   constructor() public{
-    creador = msg.sender;
-    emit DireccionCreador(creador);
+    superusuario = msg.sender;
+    emit DireccionSuperusuario(superusuario);
   }
 
-  function nuevoContrato(string memory _nombre, string memory _apell1, string memory _apell2, string memory _dni, string memory _pwHash) public {
-    for(uint i = 0; i<nContratos;i++){
-      address aux = contratosDirs[i];
+  function nuevoTestamento(string memory _nom, string memory _apell1, string memory _apell2, string memory _dni, string memory _pwHash) public {
+    for(uint i = 0; i<nTestamentos;i++){
+      address aux = testamentosDirs[i];
       if(aux == msg.sender){
-        emit ContratoYaExistente(i);
+        emit TestamentoYaExistente(i);
         return;
       }
     }
-    emit ContratoCreado(msg.sender,_nombre, _apell1, _apell2, _dni, _pwHash);
-    contratos[msg.sender] = Contrato(msg.sender, _nombre, _apell1, _apell2, _dni, _pwHash, "");
-    contratosDirs.push(msg.sender);
+    emit TestamentoCreado(msg.sender,_nom, _apell1, _apell2, _dni, _pwHash);
+    testamentos[msg.sender] = Testamento(msg.sender, _nom, _apell1, _apell2, _dni, _pwHash, "");
+    testamentosDirs.push(msg.sender);
     //identificador++;
-    nContratos++;
+    nTestamentos++;
   }
+
   // Es view porque toma datos del estado del contrato. Al ser view, no se pueden emitir eventos
   function isRegistrado() public view returns (bool){
-    for(uint i = 0; i<nContratos;i++){
-      if(msg.sender == contratosDirs[i]){
+    for(uint i = 0; i<nTestamentos;i++){
+      if(msg.sender == testamentosDirs[i]){
         return true;
       }
     }
@@ -86,10 +84,10 @@ contract TFG {
   Si el DNI es correcto pero el hash es incorrecto, se devuelve -1
   Si el DNI y el hash son correctos, se devuelve la posición del contrato
   */
-  function buscarContrato(string memory _dni) public view returns (address){
-    for(uint i = 0; i<nContratos; i++){
-      address aux = contratosDirs[i];
-      if ( compararStrings(contratos[aux].dni, _dni)){
+  function buscarTestamento(string memory _dni) public view returns (address){
+    for(uint i = 0; i<nTestamentos; i++){
+      address aux = testamentosDirs[i];
+      if ( compararStrings(testamentos[aux].dni, _dni)){
         return aux;
       }
     }
@@ -98,36 +96,36 @@ contract TFG {
 
   // Es view porque toma datos del estado del contrato. Al ser view, no se pueden emitir eventos
   function autenticar(string memory _pwHash) public view returns (bool){
-    for(uint i = 0; i<nContratos; i++){
-      if (msg.sender == contratosDirs[i]){
-        return compararStrings(contratos[msg.sender].passwordHash, _pwHash);
+    for(uint i = 0; i<nTestamentos; i++){
+      if (msg.sender == testamentosDirs[i]){
+        return compararStrings(testamentos[msg.sender].passwordHash, _pwHash);
       }
     }
   }
 
   function cambiarNombre(string memory _nuevo) public{
     emit NombreCambiado(msg.sender, _nuevo);
-    contratos[msg.sender].nombre = _nuevo;
+    testamentos[msg.sender].nombre = _nuevo;
   }
 
   function cambiarApellido1(string memory _nuevo) public{
     emit Apellido1Cambiado(msg.sender, _nuevo);
-    contratos[msg.sender].apellido1 = _nuevo;
+    testamentos[msg.sender].apellido1 = _nuevo;
   }
 
   function cambiarApellido2(string memory _nuevo) public{
     emit Apellido2Cambiado(msg.sender, _nuevo);
-    contratos[msg.sender].apellido2 = _nuevo;
+    testamentos[msg.sender].apellido2 = _nuevo;
   }
 
   function cambiarDNI(string memory _nuevo) public{
     emit DNICambiado(msg.sender, _nuevo);
-    contratos[msg.sender].dni = _nuevo;
+    testamentos[msg.sender].dni = _nuevo;
   }
 
   function cambiarIPFSHash(string memory _nuevo) public{
     emit IPFSHashCambiado(msg.sender, _nuevo);
-    contratos[msg.sender].ipfsHash = _nuevo;
+    testamentos[msg.sender].ipfsHash = _nuevo;
   }
 
   // Es puro porque no toma datos del estado del contrato

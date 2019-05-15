@@ -26,9 +26,8 @@
     "ganache": "ganache-cli -e 9000000 -m cloud barrel judge escape hour lawn list sail illness whip appear magnet",
     "compile": "truffle compile",
     "migrate": "truffle migrate --reset --network ganache_cli",
-    "backend": "node server server.js",
     "error": "echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p",
-    "t-test": "truffle test --show-events"
+    "test-contract": "truffle test --show-events"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -5,10 +5,10 @@ import * as serviceWorker from './serviceWorker';
 
 // import drizzle functions and contract artifact
 import { Drizzle, generateStore } from "drizzle";
-import TFG from "./contracts/TFG.json";
+import LastWillManager from "./contracts/LastWillManager.json";
 
 // let drizzle know what contracts we want
-const options = { contracts: [TFG] };
+const options = { contracts: [LastWillManager] };
 
 // setup the drizzle store and drizzle
 const drizzleStore = generateStore(options);
