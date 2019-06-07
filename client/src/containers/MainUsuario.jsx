@@ -39,6 +39,11 @@ class MainUsuario extends React.Component {
              */
             isTestamentoAbierto: false,
             /**
+             * Propiedad que indica si está cargando el fichero subido por el usuario.
+             *  @type {boolean}
+             */
+            isCargando: false,
+            /**
              * Propiedad que almacena el nuevo nombre introducido por el usuario.
              *  @type {string}
              */
@@ -228,14 +233,18 @@ class MainUsuario extends React.Component {
         event.preventDefault(); // Evita que se recargue la página al hacer submit. Necesario en React.
         const file = event.target.files[0];
         const reader = new window.FileReader();
+        this.setState({ isCargando: true });
+        this.crearTraza("Capturando fichero subido por el usuario");
         reader.readAsArrayBuffer(file, (error) => {
             if (error) {
                 console.error(error);
                 return;
             }
         });
+
         reader.onloadend = () => {
-            this.setState({ buffer: Buffer(reader.result) });
+            this.setState({ buffer: Buffer(reader.result), isCargando: false });
+            this.crearTraza("Captura de fichero terminada");
         }
     }
 
@@ -245,6 +254,8 @@ class MainUsuario extends React.Component {
      */
     enviarFichero(event) {
         event.preventDefault(); // Evita que se recargue la página al hacer submit. Necesario en React.
+        this.crearTraza("Añadiendo el fichero subido a IPFS");
+        this.setState({ isCargando: true });
         Ipfs.add(this.state.buffer, (error, result) => {
             if (error) {
                 console.error(error);
@@ -256,6 +267,7 @@ class MainUsuario extends React.Component {
             // Se informa a Drizzle que se va a llamar al método "cambiarIPFSHash"
             contract.methods["cambiarIPFSHash"].cacheSend(ipfsHash);
             this.crearTraza("Hash IPFS: " + ipfsHash);
+            this.setState({ isCargando: false });
         })
     }
 
@@ -279,9 +291,11 @@ class MainUsuario extends React.Component {
             let dni = contrato.dni;
             let ipfsHash = contrato.ipfsHash;
             let htmlFile;
+            let htmlLink;
             if (ipfsHash !== "") {
+                htmlLink = "https://ipfs.io/ipfs/" + ipfsHash;
                 htmlFile = (
-                    <iframe src={`https://ipfs.io/ipfs/${ipfsHash}`} title="IPFS File" width="500" height="450">
+                    <iframe src={htmlLink} title="IPFS File" width="800" height="450">
                         Este navegador no soporta visualizar PDFs. Por favor, descargue el PDF para poder verlo.
                     </iframe>
                 );
@@ -304,7 +318,9 @@ class MainUsuario extends React.Component {
                 );
             } else {
                 htmlCode = (
-                    <Fichero htmlFile={htmlFile} enviarFichero={this.enviarFichero} capturarFichero={this.capturarFichero} />
+                    <Fichero
+                        htmlFile={htmlFile} htmlLink={htmlLink} isCargando={this.state.isCargando}
+                        enviarFichero={this.enviarFichero} capturarFichero={this.capturarFichero} />
                 );
             }
 

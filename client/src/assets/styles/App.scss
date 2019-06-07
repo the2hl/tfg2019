@@ -40,7 +40,7 @@ html {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  max-width: 36em;
+  max-width: 60em;
   min-width: 22em;
   height: 40px;
   -webkit-box-shadow: 0px 0px 20px 0px rgba(15, 15, 15, 0.2);
@@ -54,6 +54,11 @@ html {
   color: white;
   background-color: rgb(236, 147, 12);
   border-radius: 12px;
+}
+
+// Pestaña de créditos
+.creditos {
+  width: 35em;
 }
 
 // Botón dentro del menú de navegación
@@ -75,7 +80,7 @@ html {
 .box-container {
   display: flex;
   flex-direction: column;
-  max-width: 32em;
+  max-width: 60em;
   min-width: 21em;
   box-shadow: 0px 0px 20px 0px rgba(15, 15, 15, 0.2);
   border-radius: 6px;
@@ -116,6 +121,7 @@ html {
   font-size: 20px;
   font-weight: 600;
   padding-left: 5px;
+  padding-bottom: 10px;
 }
 
 // Input dentro del conjunto asociado a un input
@@ -166,6 +172,26 @@ html {
   cursor: pointer;
   width: 200px;
   align-self: center;
+  display: inline-block;
+}
+
+// Lottie con botón o texto al lado
+.lottie-and-button,
+.lottie-and-text {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+// Lottie de la pestaña Testamento
+.lottie-cargando {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+// Botón al lado de un input
+.button-next-input {
+  margin-left: 20px;
+  width: 150px;
 }
 
 // Hover y focus del botón dentro del conjunto asociado a un input
@@ -218,8 +244,15 @@ html {
   visibility: visible;
 }
 
+// Ocultar
+.hide {
+  visibility: hidden;
+}
+
 // Párrafos
-p {
+p,
+a,
+#avisoFichero {
   font-size: 1.2em;
   font-family: "Comic Sans MS", cursive, sans-serif;
 }

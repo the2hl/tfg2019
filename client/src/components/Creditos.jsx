@@ -5,10 +5,20 @@
  */
 
 import React from 'react';
+import Lottie from "react-lottie";
+import animationData from '../lotties/credits.json';
 
 export const Creditos = (props) => {
+  const defaultOptions = {
+    loop: 1,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+  };
   return (
-    <div>
+    <div className="creditos">
       <div className="header">
         Créditos
       </div>
@@ -22,9 +32,7 @@ export const Creditos = (props) => {
       <p>hans.huaita.loyola@alumnos.upm.es</p>
       <p>Estudiante del Grado en Ingeniería de Tecnologías y Servicios de Telecomunicación (especialidad en Telemática) en la ETSIT de la
         Universidad Politécnica de Madrid.</p>
-      <h1>Tutor</h1>
-      <p>Santiago Pavón</p>
-      <p>santiago@dit.upm.es</p>
+      <Lottie options={defaultOptions} height={300} width={300} />
     </div>
   );
 }

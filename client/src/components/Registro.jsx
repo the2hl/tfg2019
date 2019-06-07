@@ -5,13 +5,24 @@
  */
 
 import React from 'react';
+import Lottie from "react-lottie";
+import animationData from '../lotties/registro.json';
 
 export const Registro = (props) => {
+  const defaultOptions = {
+    loop: 0,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+  };
+
   return (
-    <div className="inner-container">
+    <div>
       <div className="header">
         Registro
-                </div>
+      </div>
       <div className="box">
         <form onSubmit={props.registrar} method="post">
           <div className="input-group">
@@ -51,7 +62,10 @@ export const Registro = (props) => {
                   className={"pwd pwd-strong " + (props.pwdStrong ? "show" : "")}></div>
               </div>}
             <small className="danger-error">{props.passwordErr ? props.passwordErr : ""}</small>
-            <button type="submit" className="login-btn">Registrarme</button>
+            <div className="lottie-and-button">
+              <Lottie options={defaultOptions} height={150} width={150} />
+              <button type="submit" className="login-btn">Registrarme</button>
+            </div>
           </div>
         </form>
       </div>

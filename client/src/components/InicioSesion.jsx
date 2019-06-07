@@ -5,10 +5,20 @@
  */
 
 import React from 'react';
+import Lottie from "react-lottie";
+import animationData from '../lotties/password.json';
 
 export const InicioSesion = (props) => {
+  const defaultOptions = {
+    loop: 1,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+  };
   return (
-    <div className="inner-container">
+    <div>
       <div className="header">
         Iniciar Sesión
       </div>
@@ -20,6 +30,7 @@ export const InicioSesion = (props) => {
               className="login-input" placeholder="Debe tener 5 caracteres como mínimo" onChange={props.onPasswordChange} />
             <small className="danger-error">{props.passwordErr}</small>
             <button type="submit" className="login-btn">Iniciar Sesión</button>
+            <Lottie options={defaultOptions} height={150} width={150} />
           </div>
         </form>
       </div>

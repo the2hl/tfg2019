@@ -7,7 +7,9 @@
 /* IMPORTS */
 import React, { Component } from 'react';
 import '../assets/styles/App.scss';
-import Acceso from "./Acceso.jsx";
+import Lottie from "react-lottie";
+import Acceso from "./Acceso.jsx"; // Componente contenedor hijo
+import animationData from '../lotties/cargando.json';
 
 class App extends Component {
 
@@ -50,10 +52,19 @@ class App extends Component {
 
   render() {
     if (this.state.loading) {
+      const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid slice'
+        }
+      };
       return (
         <div className="root-container">
           <div className="nombre-app" role="complementary">LastWillManager</div>
           <p>Cargando Drizzle ...</p>
+          <Lottie options={defaultOptions} height={200} width={200} />
         </div>
       );
     } else {

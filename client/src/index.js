@@ -3,14 +3,14 @@ import ReactDOM from 'react-dom';
 import App from './containers/App.jsx';
 import * as serviceWorker from './serviceWorker';
 
-// import drizzle functions and contract artifact
+// Importar las funciones de Drizzle y el artefacto del contrato
 import { Drizzle, generateStore } from "drizzle";
 import LastWillManager from "./contracts/LastWillManager.json";
 
-// let drizzle know what contracts we want
+// Informar a Drizzle qué contrato vamos a usar
 const options = { contracts: [LastWillManager] };
 
-// setup the drizzle store and drizzle
+// Configurar la Store de Drizzle y Drizzle
 const drizzleStore = generateStore(options);
 const drizzle = new Drizzle(options, drizzleStore);
 

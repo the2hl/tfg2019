@@ -5,8 +5,18 @@
  */
 
 import React from 'react';
+import Lottie from "react-lottie";
+import animationData from '../lotties/perfil.json';
 
 export const Datos = (props) => {
+  const defaultOptions = {
+    loop: 1,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice'
+    }
+  };
   return (
     <div>
       <div className="header">
@@ -17,6 +27,7 @@ export const Datos = (props) => {
         <p><strong>Primer apellido: </strong>{props.apellido1}</p>
         <p><strong>Segundo apellido: </strong>{props.apellido2}</p>
         <p><strong>DNI: </strong>{props.dni}</p>
+        <Lottie options={defaultOptions} height={150} width={150} />
       </div>
     </div>
   );
