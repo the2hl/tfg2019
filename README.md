@@ -10,6 +10,7 @@ Desarrollo de un servicio de gestión de testamentos usando “contratos intelig
 1) Descargar en local el proyecto :
 
 >git clone [https://github.com/the2hl/tfg2019](https://github.com/the2hl/tfg2019)
+
 >git clone -b metamask --single-branch [https://github.com/the2hl/tfg2019](https://github.com/the2hl/tfg2019)
 
 2) Moverse a la carpeta "client" del proyecto:
