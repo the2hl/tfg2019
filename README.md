@@ -28,11 +28,11 @@ Desarrollo de un servicio de gestión de testamentos usando “contratos intelig
 
 6) Instalar en Google Chrome la extensión de [Metamask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) e iniciar sesión.
 
-7) Importar en Metamask una cuenta con el rol de *usuario* (que podrá ver los datos de los usuarios) con la clave privada:
+7) Importar en Metamask la cuenta que tendrá el rol de *superusuario* (que podrá ver los datos de los usuarios) con la siguiente clave privada:
 
 >0xdd3915600f72a2f0753143cd824bfafafc650674316925fbb4bc29025561e1ad
 
-8) Importar una cuenta con el rol de *usuario* (que subirá su testamento a la aplicación) con la clave privada:
+8) Importar la cuenta que tendrá el rol de *usuario* (que subirá su testamento a la aplicación) con la siguiente clave privada:
 
 >0xa137d013dc9b20a89e80cdc980aeb64cec0f91aac78eb9e30787f0e724b31425
 
